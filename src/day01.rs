@@ -1,6 +1,6 @@
 pub fn part1(inp: String) {
-    let v : Vec<&str> = inp.split('\n').collect();
-    let mut int : Vec<i32> = Vec::new();
+    let v: Vec<&str> = inp.split('\n').collect();
+    let mut int: Vec<i32> = Vec::new();
     for number in v.iter() {
         let temp = match number.parse::<i32>() {
             Ok(num) => num,
