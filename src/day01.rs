@@ -1,14 +1,15 @@
 pub fn part1(inp: String) {
-    let v: Vec<&str> = inp.split('\n').collect();
-    let mut int: Vec<i32> = Vec::new();
+    let v: Vec<&str> = inp.split('\n').collect(); // adds string of each num to vector
+    let mut int: Vec<i32> = Vec::new(); // vector for the integers
     for number in v.iter() {
-        let temp = match number.parse::<i32>() {
+        let temp = match number.parse::<i32>() { // Converts number to integer
             Ok(num) => num,
-            Err(_) => continue,
+            Err(_) => continue, // if conversion failed, just go to next entry
         };
         int.push(temp);
     }
 
+    // This isn't the best way, since it is O(n^2).
     let mut done = false;
     for num in int.iter() {
         for num1 in int.iter() {
@@ -19,7 +20,7 @@ pub fn part1(inp: String) {
                 break;
             }
         }
-        if done {
+        if done { // breaks out of the outer loop
             break;
         }
     }
@@ -36,6 +37,7 @@ pub fn part2(input: String) {
         int.push(temp);
     }
 
+    // This isn't the best way, since it is O(n^3). this was the first thing I thought of
     let mut done = false;
     for num in int.iter() {
         for num1 in int.iter() {
