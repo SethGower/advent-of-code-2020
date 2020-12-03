@@ -24,7 +24,7 @@ run: all
 	$(OUTPUT) $(INPUT)
 
 mem: all
-	$(VAL) ./output $(INPUT)
+	$(VAL) $(OUTPUT) $(INPUT)
 
 meme: mem
 
