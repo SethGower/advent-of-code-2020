@@ -6,6 +6,13 @@ competition, and have decided to take this opportunity to advance my rust
 skills. I am using a template created by [Scoder12](https://github.com/Scoder12)
 on [repl.it](https://repl.it/@Scoder12/aoc-rust-template).
 
+## Usage
+
+[aocf](https://github.com/nuxeh/aocf) is required to use run these. This is a
+wrapper that accesses the AoC website in order to get the inputs. I found this
+project and thought it was cool. I may modify the `main.rs` to have a fallback,
+but this assures updated inputs are being used.
+
 ## Puzzles
 
 1. Day 1
