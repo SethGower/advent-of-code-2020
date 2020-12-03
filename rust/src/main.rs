@@ -54,7 +54,7 @@ fn main() {
     // Read input file
     let cwd = env::current_dir().unwrap();
     let filename = cwd
-        .join("inputs")
+        .join("../inputs")
         .join(format!("day{:02}.txt", day_num));
     println!("Reading {}", filename.display());
     let input = fs::read_to_string(filename)
