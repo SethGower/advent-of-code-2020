@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+use std::thread;
 use std::u32;
 #[derive(Debug)]
 struct Passport {
@@ -40,15 +42,36 @@ pub fn part1(input: String) {
 
 pub fn part2(input: String) {
     let vec: Vec<&str> = input.split("\n\n").collect();
-    let mut valid: u32 = 0;
+    let vec: Vec<String> = vec.into_iter().map(|x| x.to_string()).collect();
+    let vec = Arc::new(Mutex::new(vec));
 
-    for entry in vec.iter() {
-        if let Ok(_) = (*entry).parse::<Passport>() {
-            valid += 1;
-        }
+    let valid = Arc::new(Mutex::new(0));
+
+    let mut handles = vec![];
+    for _ in 0..4 {
+        let vec = vec.clone();
+        let valid = valid.clone();
+
+        let handle = thread::spawn(move || loop {
+            if let Ok(mut passports) = vec.try_lock() {
+                if let Some(entry) = (*passports).pop() {
+                    if let Ok(_) = entry.parse::<Passport>() {
+                        if let Ok(mut val) = valid.try_lock() {
+                            *val += 1;
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+        });
+        handles.push(handle);
     }
 
-    println!("Valid Passports: {}", valid);
+    for handle in handles {
+        handle.join().unwrap();
+    }
+    println!("Valid Passports: {}", *valid.lock().unwrap());
 }
 
 fn parse_passport(pass: String) -> Option<Passport> {
