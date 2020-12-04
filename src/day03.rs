@@ -1,14 +1,15 @@
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-pub fn part1(input: String) {
+pub fn part1(input: String) -> Option<String> {
     let matrix: Vec<&str> = input.split('\n').collect();
     let matrix: Vec<String> = matrix.into_iter().map(|it| it.to_string()).collect();
     let num_trees: usize = check_paths(&matrix, 3, 1);
     println!("Trees: {}", num_trees);
+    Some(num_trees.to_string())
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: String) -> Option<String> {
     let matrix: Vec<&str> = input.split('\n').collect();
     let matrix: Vec<String> = matrix.into_iter().map(|it| it.to_string()).collect();
     let matrix = Arc::new(matrix);
@@ -36,7 +37,9 @@ pub fn part2(input: String) {
     for handle in handles {
         handle.join().unwrap();
     }
-    println!("Product: {}", *product.lock().unwrap());
+    let prod = *product.lock().unwrap();
+    println!("Product: {}", prod);
+    Some(prod.to_string())
 }
 
 fn check_paths(matrix: &Vec<String>, right: usize, down: usize) -> usize {

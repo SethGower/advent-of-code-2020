@@ -4,9 +4,11 @@ pub mod day02;
 pub mod day03;
 pub mod day04;
 
-pub fn noop(_inp: String) {}
+pub fn noop(_inp: String) -> Option<String> {
+    None
+}
 
-pub type DayFn = fn(String);
+pub type DayFn = fn(String) -> Option<String>;
 
 pub fn get_day(day: u32) -> (DayFn, DayFn) {
     return match day {

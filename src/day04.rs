@@ -24,7 +24,7 @@ impl std::str::FromStr for Passport {
 const FIELDS: [&str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 const COLORS: [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
 const NUM_THREADS: usize = 4;
-pub fn part1(input: String) {
+pub fn part1(input: String) -> Option<String> {
     let vec: Vec<&str> = input.split("\n\n").collect();
 
     let mut invalid: usize = 0;
@@ -39,9 +39,10 @@ pub fn part1(input: String) {
     }
 
     println!("Valid Passports: {}", vec.len() - invalid);
+    Some((vec.len() - invalid).to_string())
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: String) -> Option<String> {
     let vec: Vec<&str> = input.split("\n\n").collect();
     let vec: Vec<String> = vec.into_iter().map(|x| x.to_string()).collect();
     let valid = Arc::new(Mutex::new(0));
@@ -68,7 +69,9 @@ pub fn part2(input: String) {
     for handle in handles {
         handle.join().unwrap();
     }
-    println!("Valid Passports: {}", *valid.lock().unwrap());
+    let valid = *valid.lock().unwrap();
+    println!("Valid Passports: {}", valid);
+    Some(valid.to_string())
 }
 
 fn parse_passport(pass: String) -> Option<Passport> {

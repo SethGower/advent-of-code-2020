@@ -75,7 +75,7 @@ fn main() {
         } else {
             println!("Unable to get Input from aocf. Is it initialized?")
         }
-    }else{
+    } else {
         println!("Unable to initialize aocf");
     }
 }

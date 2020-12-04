@@ -1,4 +1,4 @@
-pub fn part1(input: String) {
+pub fn part1(input: String) -> Option<String> {
     // Function to process a password entry
     fn process_entry(input: &str) -> bool {
         // splits the entry on spaces, but only the first space. Yields two items. The first index
@@ -57,9 +57,10 @@ pub fn part1(input: String) {
         }
     }
     println!("Number of Valid Passwords: {}", count);
+    Some(count.to_string())
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: String) -> Option<String> {
     fn process_entry(input: &str) -> bool {
         // splits the entry on spaces, but only the first space. Yields two items. The first index
         // will be the range
@@ -94,8 +95,8 @@ pub fn part2(input: String) {
                     let password = String::from(*password);
 
                     // I used unwrap because I got lazy
-                    let first = password.get(bounds[0]-1..bounds[0]).unwrap();
-                    let second = password.get(bounds[1]-1..bounds[1]).unwrap();
+                    let first = password.get(bounds[0] - 1..bounds[0]).unwrap();
+                    let second = password.get(bounds[1] - 1..bounds[1]).unwrap();
 
                     // returns the XOR of the characters matching
                     return (string == first) ^ (string == second);
@@ -114,4 +115,5 @@ pub fn part2(input: String) {
         }
     }
     println!("Number of Valid Passwords: {}", count);
+    Some(count.to_string())
 }
