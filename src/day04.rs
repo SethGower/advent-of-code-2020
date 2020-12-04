@@ -11,8 +11,8 @@ struct Passport {
     country_id: u32,
 }
 
-const FIELDS: [&str;7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
-const COLORS: [&str;7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
+const FIELDS: [&str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+const COLORS: [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
 pub fn part1(input: String) {
     let vec: Vec<&str> = input.split("\n\n").collect();
 
@@ -32,7 +32,7 @@ pub fn part1(input: String) {
 
 pub fn part2(input: String) {
     let vec: Vec<&str> = input.split("\n\n").collect();
-    let mut valid : u32 = 0;
+    let mut valid: u32 = 0;
     for entry in vec.iter() {
         if let Some(_) = parse_passport(String::from(*entry).replace("\n", " ")) {
             valid += 1;
@@ -61,128 +61,59 @@ fn parse_passport(pass: String) -> Option<Passport> {
         country_id: 0,
     };
     for field in fields.iter() {
-        let mut s = field.split(":");
-        match s.next() {
-            Some("byr") => {
-                if let Some(num) = s.next() {
-                    if num.len() == 4 {
-                        if let Ok(num) = num.parse::<u32>() {
-                            if num >= 1920 && num <= 2002 {
-                                passport.birth_year = num;
-                            } else {
-                                return None;
-                            }
-                        } else {
-                            return None;
-                        }
-                    } else {
-                        return None;
-                    }
-                }
+        let s: Vec<&str> = field.split(":").collect();
+
+        match &*s {
+            ["byr", num] if num.len() == 4 => {
+                let num: u32 = num
+                    .parse::<u32>()
+                    .ok()
+                    .filter(|&it| it >= 1920 && it <= 2002)?;
+                passport.birth_year = num;
             }
-            Some("iyr") => {
-                if let Some(num) = s.next() {
-                    if num.len() == 4 {
-                        if let Ok(num) = num.parse::<u32>() {
-                            if num >= 2010 && num <= 2020 {
-                                passport.issue_year = num;
-                            } else {
-                                return None;
-                            }
-                        } else {
-                            return None;
-                        }
-                    } else {
-                        return None;
-                    }
-                }
+            ["iyr", num] if num.len() == 4 => {
+                let num: u32 = num
+                    .parse::<u32>()
+                    .ok()
+                    .filter(|&it| it >= 2010 && it <= 2020)?;
+                passport.issue_year = num;
             }
-            Some("eyr") => {
-                if let Some(num) = s.next() {
-                    if num.len() == 4 {
-                        if let Ok(num) = num.parse::<u32>() {
-                            if num >= 2020 && num <= 2030 {
-                                passport.exp_year = num;
-                            } else {
-                                return None;
-                            }
-                        } else {
-                            return None;
-                        }
-                    } else {
-                        return None;
-                    }
-                }
+            ["eyr", num] if num.len() == 4 => {
+                let num: u32 = num
+                    .parse::<u32>()
+                    .ok()
+                    .filter(|&it| it >= 2020 && it <= 2030)?;
+                passport.exp_year = num;
             }
-            Some("hgt") => {
-                if let Some(height) = s.next() {
-                    if let Some(index) = height.find("in") {
-                        if let Ok(num) = (height[0..index]).parse::<u32>() {
-                            if num >= 59 && num <= 76 {
-                                passport.height = (num, String::from("in"));
-                            } else {
-                                return None;
-                            }
-                        } else {
-                            return None;
-                        }
-                    } else if let Some(index) = height.find("cm") {
-                        if let Ok(num) = (height[0..index]).parse::<u32>() {
-                            if num >= 150 && num <= 193 {
-                                passport.height = (num, String::from("cm"));
-                            } else {
-                                return None;
-                            }
-                        } else {
-                            return None;
-                        }
-                    } else {
-                        return None;
-                    }
-                }
-            }
-            Some("hcl") => {
-                if let Some(hair) = s.next() {
-                    if hair[0..1] == *"#" && hair.len() == 7 {
-                        // let hex = String::from(hair).replace("#","");
-                        if let Ok(_) = u32::from_str_radix(&hair[1..], 16) {
-                            passport.hair = String::from(hair);
-                        }
-                    } else {
-                        return None;
-                    }
-                } else {
-                    return None;
-                }
-            }
-            Some("ecl") => {
-                if let Some(eye) = s.next() {
-                    // if the eye color is in the list COLORS
-                    if let Some(_) = COLORS.iter().find(|&&x| x == eye) {
-                        passport.eye = String::from(eye);
-                    } else {
-                        return None;
-                    }
-                } else {
-                    return None;
-                }
-            }
-            Some("pid") => {
-                if let Some(pid) = s.next() {
-                    if let Ok(num) = pid.parse::<u32>() {
-                        if pid.len() == 9 {
-                            passport.passport_id = num;
-                        }else{
-                            return None;
-                        }
-                    }else{
-                        return None;
-                    }
-                }else{
+            ["hgt", height] => {
+                if let Some(index) = height.find("in") {
+                    let num: u32 = height[..index]
+                        .parse::<u32>()
+                        .ok()
+                        .filter(|&it| it >= 59 && it <= 76)?;
+                    passport.height = (num, String::from("in"));
+                }else if let Some(index) = height.find("cm") {
+                    let num: u32 = height[..index]
+                        .parse::<u32>()
+                        .ok()
+                        .filter(|&it| it >= 150 && it <= 193)?;
+                    passport.height = (num, String::from("cm"));
+                }else {
                     return None;
                 }
             },
-            _ => continue
+            ["hcl", hair] if hair.len() == 7 && hair[0..1] == *"#" => {
+                let _ : u32 = u32::from_str_radix(&hair[1..], 16).ok()?;
+                passport.hair = String::from(*hair);
+            },
+            ["ecl", eye] => {
+                let _ = COLORS.iter().find(|&x| x == eye)?;
+                passport.eye = String::from(*eye);
+            }
+            ["pid", pid] if pid.len() == 9 => {
+                passport.passport_id = pid.parse::<u32>().ok()?;
+            }
+            _ => continue,
         }
     }
     Some(passport)
