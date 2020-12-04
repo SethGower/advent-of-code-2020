@@ -1,4 +1,5 @@
-use aocf::Aoc;
+use aocf::{Aoc, Level};
+use getopts::Options;
 use std::env;
 use std::io;
 use std::time::{Duration, Instant};
@@ -42,6 +43,16 @@ fn main() {
             .read_line(&mut day)
             .expect("Failed to read line");
     }
+
+    let mut opts = Options::new();
+    opts.optflag("s", "submit", "Submit the current puzzle");
+    let matches = match opts.parse(&args[1..]) {
+        Ok(m) => m,
+        Err(e) => {
+            panic!(e.to_string());
+        }
+    };
+
     // Parse day as number
     day = day.trim().to_string();
     let day_num: u32 = match day.parse() {
@@ -60,17 +71,39 @@ fn main() {
             if to_run.0 != noop {
                 println!("Running Part 1");
                 let part1_start = Instant::now();
-                to_run.0(input.clone());
+                let result = to_run.0(input.clone());
                 let part1_dur = part1_start.elapsed();
                 println!("Took {}", fmt_dur(part1_dur));
+                if matches.opt_present("s") {
+                    if aoc.level == Level::First {
+                        if let Some(result) = result {
+                            println!("Submitting {} for Day {}, Level {}", result, day_num, 1);
+                            match aoc.submit(&result) {
+                                Ok(resp) => println!("{}", resp),
+                                Err(e) => eprintln!("{:?}", e),
+                            }
+                        }
+                    }
+                }
             }
 
             if to_run.1 != noop {
                 println!("Running Part 2");
                 let part2_start = Instant::now();
-                to_run.1(input.clone());
+                let result = to_run.1(input.clone());
                 let part2_dur = part2_start.elapsed();
                 println!("Took {}", fmt_dur(part2_dur));
+                if matches.opt_present("s") {
+                    if aoc.level == Level::Second {
+                        if let Some(result) = result {
+                            println!("Submitting {} for Day {}, Level {}", result, day_num, 2);
+                            match aoc.submit(&result) {
+                                Ok(resp) => println!("{}", resp),
+                                Err(e) => eprintln!("{:?}", e),
+                            }
+                        }
+                    }
+                }
             }
         } else {
             println!("Unable to get Input from aocf. Is it initialized?")
