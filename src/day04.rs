@@ -11,6 +11,14 @@ struct Passport {
     country_id: u32,
 }
 
+impl std::str::FromStr for Passport {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        parse_passport(String::from(s)).ok_or(())
+    }
+}
+
 const FIELDS: [&str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 const COLORS: [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
 pub fn part1(input: String) {
@@ -35,7 +43,7 @@ pub fn part2(input: String) {
     let mut valid: u32 = 0;
 
     for entry in vec.iter() {
-        if let Some(_) = parse_passport(String::from(*entry).replace("\n", " ")) {
+        if let Ok(_) = (*entry).parse::<Passport>() {
             valid += 1;
         }
     }
