@@ -1,28 +1,33 @@
+use std::sync::{Arc, Mutex};
 use std::thread;
-// use std::sync::Mutex;
-use std::sync::Arc;
 
 pub fn part1(input: String) {
     let matrix: Vec<&str> = input.split('\n').collect();
-    let matrix : Vec<String> = matrix.into_iter().map(|it| it.to_string()).collect();
+    let matrix: Vec<String> = matrix.into_iter().map(|it| it.to_string()).collect();
     let num_trees: usize = check_paths(&matrix, 3, 1);
     println!("Trees: {}", num_trees);
 }
 
 pub fn part2(input: String) {
     let matrix: Vec<&str> = input.split('\n').collect();
-    let cloned : Vec<String> = matrix.into_iter().map(|it| it.to_string()).collect();
-    let atomic_matrix = Arc::new(cloned);
+    let matrix: Vec<String> = matrix.into_iter().map(|it| it.to_string()).collect();
+    let matrix = Arc::new(matrix);
+
+    let product = Arc::new(Mutex::new(1));
     let mut handles = vec![];
     {
         let tup: [(usize, usize); 5] = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
         for range in tup.iter() {
-            let atomic_matrix = Arc::clone(&atomic_matrix);
+            let matrix = Arc::clone(&matrix);
+            let product = Arc::clone(&product);
             let lower = range.0;
             let upper = range.1;
             let handle = thread::spawn(move || {
-                let trees = check_paths(&(*atomic_matrix), lower, upper);
-                println!("Range: ({},{}) had {} trees", lower, upper, trees);
+                let trees = check_paths(&(*matrix), lower, upper);
+                // println!("Range: ({},{}) had {} trees", lower, upper, trees);
+                if let Ok(mut prod) = product.lock() {
+                    *prod *= trees;
+                }
             });
             handles.push(handle);
         }
@@ -31,6 +36,7 @@ pub fn part2(input: String) {
     for handle in handles {
         handle.join().unwrap();
     }
+    println!("Product: {}", *product.lock().unwrap());
 }
 
 fn check_paths(matrix: &Vec<String>, right: usize, down: usize) -> usize {
