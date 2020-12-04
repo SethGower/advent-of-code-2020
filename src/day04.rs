@@ -23,6 +23,7 @@ impl std::str::FromStr for Passport {
 
 const FIELDS: [&str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 const COLORS: [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
+const NUM_THREADS: usize = 4;
 pub fn part1(input: String) {
     let vec: Vec<&str> = input.split("\n\n").collect();
 
@@ -43,26 +44,22 @@ pub fn part1(input: String) {
 pub fn part2(input: String) {
     let vec: Vec<&str> = input.split("\n\n").collect();
     let vec: Vec<String> = vec.into_iter().map(|x| x.to_string()).collect();
-    let vec = Arc::new(Mutex::new(vec));
-
     let valid = Arc::new(Mutex::new(0));
 
     let mut handles = vec![];
-    for _ in 0..4 {
-        let vec = vec.clone();
-        let valid = valid.clone();
 
+    for chunk in vec.chunks(vec.len() / NUM_THREADS) {
+        let valid = valid.clone();
+        let mut vec = Vec::from(chunk);
         let handle = thread::spawn(move || loop {
-            if let Ok(mut passports) = vec.try_lock() {
-                if let Some(entry) = (*passports).pop() {
-                    if let Ok(_) = entry.parse::<Passport>() {
-                        if let Ok(mut val) = valid.try_lock() {
-                            *val += 1;
-                        }
+            if let Some(entry) = vec.pop() {
+                if let Ok(_) = entry.parse::<Passport>() {
+                    if let Ok(mut val) = valid.lock() {
+                        *val += 1;
                     }
-                } else {
-                    break;
                 }
+            } else {
+                break;
             }
         });
         handles.push(handle);
