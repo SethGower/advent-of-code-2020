@@ -1,29 +1,39 @@
+use std::thread;
+// use std::sync::Mutex;
+use std::sync::Arc;
+
 pub fn part1(input: String) {
     let matrix: Vec<&str> = input.split('\n').collect();
+    let matrix : Vec<String> = matrix.into_iter().map(|it| it.to_string()).collect();
     let num_trees: usize = check_paths(&matrix, 3, 1);
     println!("Trees: {}", num_trees);
 }
 
 pub fn part2(input: String) {
     let matrix: Vec<&str> = input.split('\n').collect();
-    let mut vec : Vec<usize> = Vec::with_capacity(5);
-
-    vec.push(check_paths(&matrix, 1,1));
-    vec.push(check_paths(&matrix, 3,1));
-    vec.push(check_paths(&matrix, 5,1));
-    vec.push(check_paths(&matrix, 7,1));
-    vec.push(check_paths(&matrix, 1,2));
-
-    let mut prod : usize = 1;
-
-    for num in vec.iter(){
-        prod *= num;
+    let cloned : Vec<String> = matrix.into_iter().map(|it| it.to_string()).collect();
+    let atomic_matrix = Arc::new(cloned);
+    let mut handles = vec![];
+    {
+        let tup: [(usize, usize); 5] = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
+        for range in tup.iter() {
+            let atomic_matrix = Arc::clone(&atomic_matrix);
+            let lower = range.0;
+            let upper = range.1;
+            let handle = thread::spawn(move || {
+                let trees = check_paths(&(*atomic_matrix), lower, upper);
+                println!("Range: ({},{}) had {} trees", lower, upper, trees);
+            });
+            handles.push(handle);
+        }
     }
-    println!("Product: {}", prod);
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
 }
 
-
-fn check_paths(matrix: &Vec<&str>, right: usize, down: usize) -> usize {
+fn check_paths(matrix: &Vec<String>, right: usize, down: usize) -> usize {
     let num_col = match matrix.get(0) {
         Some(row) => row.len(),
         _ => 0,
@@ -34,8 +44,7 @@ fn check_paths(matrix: &Vec<&str>, right: usize, down: usize) -> usize {
     let mut i: usize = 0;
     while i < matrix.len() {
         if let Some(row) = matrix.get(i) {
-            let row_s = String::from(*row);
-            if let Some(character) = row_s.get(curr_col..curr_col + 1) {
+            if let Some(character) = row.get(curr_col..curr_col + 1) {
                 if character == "#" {
                     num_trees += 1;
                 }
