@@ -33,11 +33,13 @@ pub fn part1(input: String) {
 pub fn part2(input: String) {
     let vec: Vec<&str> = input.split("\n\n").collect();
     let mut valid: u32 = 0;
+
     for entry in vec.iter() {
         if let Some(_) = parse_passport(String::from(*entry).replace("\n", " ")) {
             valid += 1;
         }
     }
+
     println!("Valid Passports: {}", valid);
 }
 
@@ -92,26 +94,34 @@ fn parse_passport(pass: String) -> Option<Passport> {
                         .ok()
                         .filter(|&it| it >= 59 && it <= 76)?;
                     passport.height = (num, String::from("in"));
-                }else if let Some(index) = height.find("cm") {
+                } else if let Some(index) = height.find("cm") {
                     let num: u32 = height[..index]
                         .parse::<u32>()
                         .ok()
                         .filter(|&it| it >= 150 && it <= 193)?;
                     passport.height = (num, String::from("cm"));
-                }else {
+                } else {
                     return None;
                 }
-            },
-            ["hcl", hair] if hair.len() == 7 && hair[0..1] == *"#" => {
-                let _ : u32 = u32::from_str_radix(&hair[1..], 16).ok()?;
-                passport.hair = String::from(*hair);
-            },
+            }
+            ["hcl", hair] => {
+                if hair.len() == 7 && hair[0..1] == *"#" {
+                    let _: u32 = u32::from_str_radix(&hair[1..], 16).ok()?;
+                    passport.hair = String::from(*hair);
+                } else {
+                    return None;
+                }
+            }
             ["ecl", eye] => {
                 let _ = COLORS.iter().find(|&x| x == eye)?;
                 passport.eye = String::from(*eye);
             }
-            ["pid", pid] if pid.len() == 9 => {
-                passport.passport_id = pid.parse::<u32>().ok()?;
+            ["pid", pid] => {
+                if pid.len() == 9 {
+                    passport.passport_id = pid.parse::<u32>().ok()?;
+                } else {
+                    return None;
+                }
             }
             _ => continue,
         }
