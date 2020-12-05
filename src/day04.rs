@@ -26,18 +26,34 @@ const COLORS: [&str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
 const NUM_THREADS: usize = 4;
 pub fn part1(input: String) -> Option<String> {
     let vec: Vec<&str> = input.split("\n\n").collect();
+    let vec: Vec<String> = vec.into_iter().map(|x| x.to_string()).collect();
+    let invalid = Arc::new(Mutex::new(0));
 
-    let mut invalid: usize = 0;
-    for passport in vec.iter() {
-        let s = String::from(*passport).replace("\n", " ");
-        for pattern in FIELDS.iter() {
-            if let None = s.find(pattern) {
-                invalid += 1;
-                break;
+    let mut handles = vec![];
+
+    for chunk in vec.chunks(vec.len() / NUM_THREADS) {
+        let invalid = invalid.clone();
+        let vec = Vec::from(chunk);
+        let handle = thread::spawn(move || {
+            for passport in vec.iter() {
+                let s = String::from(passport).replace("\n", " ");
+                for pattern in FIELDS.iter() {
+                    if let None = s.find(pattern) {
+                        if let Ok(mut val) = invalid.lock() {
+                            *val += 1;
+                        }
+                        break;
+                    }
+                }
             }
-        }
+        });
+        handles.push(handle);
     }
 
+    for handle in handles {
+        handle.join().unwrap();
+    }
+    let invalid = *invalid.lock().unwrap();
     println!("Valid Passports: {}", vec.len() - invalid);
     Some((vec.len() - invalid).to_string())
 }
@@ -76,9 +92,7 @@ pub fn part2(input: String) -> Option<String> {
 
 fn parse_passport(pass: String) -> Option<Passport> {
     for pattern in FIELDS.iter() {
-        if let None = pass.find(pattern) {
-            return None;
-        }
+        pass.find(pattern)?;
     }
     // at this point, the passport has been verified to have all of the necessary fields, whether
     // they have valid data is yet to be determined
