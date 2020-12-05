@@ -1,16 +1,20 @@
 use std::cmp::Ordering;
-use std::collections::HashSet;
-#[derive(Debug, Hash, PartialEq, Eq)]
+use std::collections::BTreeMap;
+#[derive(Debug, Hash, PartialEq, Eq, PartialOrd)]
 struct Seat {
     row: u32,
     col: u32,
 }
+impl Ord for Seat {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if self.row == other.row {
+            self.col.cmp(&other.col)
+        } else {
+            self.row.cmp(&other.row)
+        }
+    }
+}
 
-// impl Ord for Seat {
-//     fn cmp(&self, other : &Self) -> Ordering {
-
-//     }
-// }
 pub fn part1(input: String) -> Option<String> {
     let mut highest_id: u32 = 0;
 
@@ -27,28 +31,39 @@ pub fn part1(input: String) -> Option<String> {
     Some(highest_id.to_string())
 }
 pub fn part2(input: String) -> Option<String> {
-    let mut occupied_seats: HashSet<Seat> = HashSet::new();
-    let mut empty_seats: HashSet<Seat> = HashSet::new();
+    let mut occupied_seats: BTreeMap<u32, Seat> = BTreeMap::new();
+    let mut empty_seats: BTreeMap<u32, Seat> = BTreeMap::new();
+    let mut highest_id: u32 = 0;
 
     for seat in input.split("\n") {
         if let Some(seat) = get_seat(seat) {
-            occupied_seats.insert(seat);
+            let id = seat.row * 8 + seat.col;
+            occupied_seats.insert(id, seat);
+            if id > highest_id {
+                highest_id = id;
+            }
         }
     }
 
     for i in 0..=127 {
         for j in 0..=7 {
             let seat = Seat { row: i, col: j };
-            if !occupied_seats.contains(&seat) {
-                empty_seats.insert(seat);
+            let id = seat.row * 8 + seat.col;
+            if !occupied_seats.contains_key(&id) {
+                empty_seats.insert(id, seat);
             }
         }
     }
-    println!(
-        "{} Empty Seats - {} Occupied Seats",
-        empty_seats.len(),
-        occupied_seats.len()
-    );
+
+    for (id, _) in &empty_seats {
+        if *id == 0 || *id == highest_id {
+            continue;
+        }
+        if occupied_seats.contains_key(&(id - 1)) && occupied_seats.contains_key(&(id + 1)) {
+            return Some(id.to_string());
+        }
+    }
+
     None
 }
 
