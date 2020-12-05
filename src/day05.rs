@@ -67,6 +67,9 @@ pub fn part2(input: String) -> Option<String> {
     None
 }
 
+// Finds a seat given a string. String must be composed of 7 characters that are F or B (front or
+// back) and 3 R or L (Right or Left). These describe which row and column, respectively. This
+// performs a binary search
 fn get_seat(s: &str) -> Option<Seat> {
     let mut seat = Seat { row: 0, col: 0 };
 
@@ -77,6 +80,7 @@ fn get_seat(s: &str) -> Option<Seat> {
     seat.col = find_col(&s[7..], (0, 7));
     Some(seat)
 }
+// Binary search using the a string of F's and B's
 fn find_row(s: &str, range: (u32, u32)) -> u32 {
     let mut lower: u32 = range.0;
     let mut upper: u32 = range.1;
@@ -100,6 +104,7 @@ fn find_row(s: &str, range: (u32, u32)) -> u32 {
         }
     }
 }
+// Binary search using the a string of R's and L's
 fn find_col(s: &str, range: (u32, u32)) -> u32 {
     let mut lower: u32 = range.0;
     let mut upper: u32 = range.1;
