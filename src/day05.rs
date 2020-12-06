@@ -1,4 +1,6 @@
 use std::cmp::Ordering;
+use std::u32;
+
 use std::collections::BTreeMap;
 #[derive(Debug, Hash, PartialEq, Eq, PartialOrd)]
 struct Seat {
@@ -76,55 +78,12 @@ fn get_seat(s: &str) -> Option<Seat> {
     if s.len() == 0 {
         return None;
     }
-    seat.row = find_row(&s[..7], (0, 127));
-    seat.col = find_col(&s[7..], (0, 7));
+    let s = String::from(s)
+        .replace("F", "0")
+        .replace("B", "1")
+        .replace("L", "0")
+        .replace("R", "1");
+    seat.row = u32::from_str_radix(&s[..7], 2).ok()?;
+    seat.col = u32::from_str_radix(&s[7..], 2).ok()?;
     Some(seat)
-}
-// Binary search using the a string of F's and B's
-fn find_row(s: &str, range: (u32, u32)) -> u32 {
-    let mut lower: u32 = range.0;
-    let mut upper: u32 = range.1;
-    if s.len() > 1 {
-        if s[0..1] == *"F" {
-            upper = (upper + lower) / 2;
-            find_row(&s[1..], (lower, upper))
-        } else if s[0..1] == *"B" {
-            lower = (upper + lower) / 2 + 1;
-            find_row(&s[1..], (lower, upper))
-        } else {
-            0
-        }
-    } else {
-        if s[0..1] == *"F" {
-            lower
-        } else if s[0..1] == *"B" {
-            upper
-        } else {
-            0
-        }
-    }
-}
-// Binary search using the a string of R's and L's
-fn find_col(s: &str, range: (u32, u32)) -> u32 {
-    let mut lower: u32 = range.0;
-    let mut upper: u32 = range.1;
-    if s.len() > 1 {
-        if s[0..1] == *"L" {
-            upper = (upper + lower) / 2;
-            find_col(&s[1..], (lower, upper))
-        } else if s[0..1] == *"R" {
-            lower = (upper + lower) / 2 + 1;
-            find_col(&s[1..], (lower, upper))
-        } else {
-            0
-        }
-    } else {
-        if s[0..1] == *"L" {
-            lower
-        } else if s[0..1] == *"R" {
-            upper
-        } else {
-            0
-        }
-    }
 }
