@@ -1,7 +1,12 @@
 use std::collections::HashSet;
 use std::iter::FromIterator;
+use std::thread;
+use std::sync::{Arc, Mutex};
+
+const NUM_THREADS : usize = 4;
+
 pub fn part1(input: String) -> Option<String> {
-    fn count_answers(group: &str) -> usize {
+    fn count_answers(group: String) -> Option<usize> {
         let mut set: HashSet<char> = HashSet::new();
 
         for c in group.chars() {
@@ -9,20 +14,39 @@ pub fn part1(input: String) -> Option<String> {
                 set.insert(c);
             }
         }
-        set.len()
+        Some(set.len())
     }
     let groups: Vec<&str> = input.split("\n\n").collect();
+    let groups: Vec<String> = groups.into_iter().map(|x| x.to_string()).collect();
+    let sum = Arc::new(Mutex::new(0));
 
-    let mut sum = 0;
-    for group in groups.iter() {
-        sum += count_answers(group);
+    let mut handles = vec![];
+
+    for chunk in groups.chunks(groups.len() / NUM_THREADS) {
+        let sum = sum.clone();
+        let groups = Vec::from(chunk);
+        let handle = thread::spawn(move || {
+            for group in groups {
+                if let Some(num) = count_answers(group){
+                    if let Ok(mut sum) = sum.lock() {
+                        *sum += num;
+                    }
+                }
+            }
+        });
+        handles.push(handle);
     }
 
+    for handle in handles {
+        handle.join().ok()?;
+    }
+
+    let sum = *sum.lock().ok()?;
     println!("Sum: {}", sum);
     Some(sum.to_string())
 }
 pub fn part2(input : String) -> Option<String> {
-    fn count_answers(s : &str) -> Option<usize> {
+    fn count_answers(s : String) -> Option<usize> {
         let people : Vec<&str> = s.split("\n").collect();
         let mut sets : Vec<HashSet<char>> = Vec::new();
 
@@ -39,18 +63,35 @@ pub fn part2(input : String) -> Option<String> {
         for set in sets {
             int = int.intersection(&set).cloned().collect();
         }
-        
+
         Some(int.len())
     }
     let groups: Vec<&str> = input.split("\n\n").collect();
+    let groups: Vec<String> = groups.into_iter().map(|x| x.to_string()).collect();
+    let sum = Arc::new(Mutex::new(0));
 
-    let mut sum = 0;
-    for group in groups.iter() {
-        if let Some(num) = count_answers(group){
-            sum += num;
-        }
+    let mut handles = vec![];
+
+    for chunk in groups.chunks(groups.len() / NUM_THREADS) {
+        let sum = sum.clone();
+        let groups = Vec::from(chunk);
+        let handle = thread::spawn(move || {
+            for group in groups {
+                if let Some(num) = count_answers(group){
+                    if let Ok(mut sum) = sum.lock() {
+                        *sum += num;
+                    }
+                }
+            }
+        });
+        handles.push(handle);
     }
 
+    for handle in handles {
+        handle.join().ok()?;
+    }
+
+    let sum = *sum.lock().ok()?;
     println!("Sum: {}", sum);
     Some(sum.to_string())
 }
