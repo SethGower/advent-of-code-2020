@@ -1,9 +1,9 @@
 use aocf::{Aoc, Level};
 use getopts::Options;
 use std::env;
+use std::fs;
 use std::io;
 use std::time::{Duration, Instant};
-use std::fs;
 
 use advent_of_code::{get_day, noop};
 
@@ -65,60 +65,78 @@ fn main() {
             return;
         }
     };
+    // Get corresponding function
+
+    let to_run = get_day(day_num);
     if let Ok(mut aoc) = Aoc::new().year(Some(2020)).day(Some(day_num)).init() {
         if let Ok(mut input) = aoc.get_input(false) {
-            if matches.opt_present("f"){
+            if matches.opt_present("f") {
                 if let Some(filename) = matches.opt_str("f") {
-                    input = fs::read_to_string(filename).expect("Error while reading");
-                }else{
-                    panic!("No filename specified for --file");
+                    input = fs::read_to_string(filename).expect("Unable to open file");
                 }
             }
-            // Get corresponding function
-
-            let to_run = get_day(day_num);
-            // Time it
-            if to_run.0 != noop {
-                println!("Running Part 1");
-                let part1_start = Instant::now();
-                let result = to_run.0(input.clone());
-                let part1_dur = part1_start.elapsed();
-                println!("Took {}", fmt_dur(part1_dur));
-                if matches.opt_present("s") {
-                    if aoc.level == Level::First {
-                        if let Some(result) = result {
-                            println!("Submitting {} for Day {}, Level {}", result, day_num, 1);
-                            match aoc.submit(&result) {
+            let (output1, output2) = run_funcs(to_run, input);
+            if matches.opt_present("s") {
+                match aoc.level {
+                    Level::First => {
+                        if let Some(output) = output1 {
+                            println!("Submitting {} for Day {}, Level {}", output, day_num, 1);
+                            match aoc.submit(&output) {
                                 Ok(resp) => println!("{}", resp),
                                 Err(e) => eprintln!("{:?}", e),
                             }
+                        } else {
+                            println!("Output for Day {}, Level {} was empty", day_num, 1);
                         }
                     }
-                }
-            }
-
-            if to_run.1 != noop {
-                println!("Running Part 2");
-                let part2_start = Instant::now();
-                let result = to_run.1(input.clone());
-                let part2_dur = part2_start.elapsed();
-                println!("Took {}", fmt_dur(part2_dur));
-                if matches.opt_present("s") {
-                    if aoc.level == Level::Second {
-                        if let Some(result) = result {
-                            println!("Submitting {} for Day {}, Level {}", result, day_num, 2);
-                            match aoc.submit(&result) {
+                    Level::Second => {
+                        if let Some(output) = output2 {
+                            println!("Submitting {} for Day {}, Level {}", output, day_num, 2);
+                            match aoc.submit(&output) {
                                 Ok(resp) => println!("{}", resp),
                                 Err(e) => eprintln!("{:?}", e),
                             }
+                        } else {
+                            println!("Output for Day {}, Level {} was empty", day_num, 2);
                         }
                     }
                 }
             }
         } else {
-            println!("Unable to get Input from aocf. Is it initialized?")
+            println!("Unable to get Input. Make sure session cookie is valid")
         }
     } else {
-        println!("Unable to initialize aocf");
+        if matches.opt_present("f") {
+            if let Some(filename) = matches.opt_str("f") {
+                if let Ok(input) = fs::read_to_string(filename) {
+                    run_funcs(to_run, input);
+                }
+            }
+        } else {
+            eprintln!("Please specify an input file with '--file|-f FILE'");
+        }
     }
+}
+fn run_funcs(
+    to_run: (advent_of_code::DayFn, advent_of_code::DayFn),
+    input: String,
+) -> (Option<String>, Option<String>) {
+    let mut res1: Option<String> = None;
+    let mut res2: Option<String> = None;
+    if to_run.0 != noop {
+        println!("Running Part 1");
+        let part1_start = Instant::now();
+        res1 = to_run.0(input.clone());
+        let part1_dur = part1_start.elapsed();
+        println!("Took {}", fmt_dur(part1_dur));
+    }
+
+    if to_run.1 != noop {
+        println!("Running Part 2");
+        let part2_start = Instant::now();
+        res2 = to_run.1(input.clone());
+        let part2_dur = part2_start.elapsed();
+        println!("Took {}", fmt_dur(part2_dur));
+    }
+    (res1, res2)
 }
