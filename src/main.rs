@@ -3,6 +3,7 @@ use getopts::Options;
 use std::env;
 use std::io;
 use std::time::{Duration, Instant};
+use std::fs;
 
 use advent_of_code::{get_day, noop};
 
@@ -46,6 +47,8 @@ fn main() {
 
     let mut opts = Options::new();
     opts.optflag("s", "submit", "Submit the current puzzle");
+    opts.optopt("f", "file", "", "FILE");
+
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => m,
         Err(e) => {
@@ -63,7 +66,14 @@ fn main() {
         }
     };
     if let Ok(mut aoc) = Aoc::new().year(Some(2020)).day(Some(day_num)).init() {
-        if let Ok(input) = aoc.get_input(false) {
+        if let Ok(mut input) = aoc.get_input(false) {
+            if matches.opt_present("f"){
+                if let Some(filename) = matches.opt_str("f") {
+                    input = fs::read_to_string(filename).expect("Error while reading");
+                }else{
+                    panic!("No filename specified for --file");
+                }
+            }
             // Get corresponding function
 
             let to_run = get_day(day_num);
