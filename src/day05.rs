@@ -128,3 +128,22 @@ fn find_col(s: &str, range: (u32, u32)) -> u32 {
         }
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    const SINGLE : &str = "FBFBBFFRLR";
+    const MULTI : &str = "BFFFBFBLRR\nBFFFBFBRLR";
+
+    #[test]
+    fn test_part1() -> Result<(), String> {
+        assert_eq!(&part1(String::from(SINGLE)).ok_or("Part1 Failed")?, "357");
+        Ok(())
+    }
+    #[test]
+    fn test_part2() -> Result<(), String> {
+        assert_eq!(&part1(String::from(MULTI)).ok_or("Part1 Failed")?, "557");
+        Ok(())
+    }
+}
