@@ -95,3 +95,20 @@ pub fn part2(input : String) -> Option<String> {
     println!("Sum: {}", sum);
     Some(sum.to_string())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    const EXAMPLE_1 : &str = "abcx\nabcy\nabcz\n\n";
+    const EXAMPLE_2 : &str = "abc\n\na\nb\nc\n\nab\nac\n\na\na\na\na\n\nb\n\n";
+    #[test]
+    fn test_part1() -> Result<(), String> {
+        assert_eq!(&part1(String::from(EXAMPLE_1)).ok_or(String::from(""))?, "6");
+        assert_eq!(&part1(String::from(EXAMPLE_2)).ok_or(String::from(""))?, "11");
+        assert_eq!(&part2(String::from(EXAMPLE_1)).ok_or(String::from(""))?, "3");
+        assert_eq!(&part2(String::from(EXAMPLE_2)).ok_or(String::from(""))?, "6");
+
+        Ok(())
+    }
+}
