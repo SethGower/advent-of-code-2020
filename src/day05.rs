@@ -129,12 +129,11 @@ fn find_col(s: &str, range: (u32, u32)) -> u32 {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    const SINGLE : &str = "FBFBBFFRLR";
-    const MULTI : &str = "BFFFBFBLRR\nBFFFBFBRLR";
+    const SINGLE: &str = "FBFBBFFRLR";
+    const MULTI: &str = "BFFFBFBLRR\nBFFFBFBRLR";
 
     #[test]
     fn test_part1() -> Result<(), String> {

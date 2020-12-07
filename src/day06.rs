@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 use std::iter::FromIterator;
-use std::thread;
 use std::sync::{Arc, Mutex};
+use std::thread;
 
-const NUM_THREADS : usize = 4;
+const NUM_THREADS: usize = 4;
 
 pub fn part1(input: String) -> Option<String> {
     fn count_answers(group: String) -> Option<usize> {
@@ -27,7 +27,7 @@ pub fn part1(input: String) -> Option<String> {
         let groups = Vec::from(chunk);
         let handle = thread::spawn(move || {
             for group in groups {
-                if let Some(num) = count_answers(group){
+                if let Some(num) = count_answers(group) {
                     if let Ok(mut sum) = sum.lock() {
                         *sum += num;
                     }
@@ -45,20 +45,20 @@ pub fn part1(input: String) -> Option<String> {
     println!("Sum: {}", sum);
     Some(sum.to_string())
 }
-pub fn part2(input : String) -> Option<String> {
-    fn count_answers(s : String) -> Option<usize> {
-        let people : Vec<&str> = s.split("\n").collect();
-        let mut sets : Vec<HashSet<char>> = Vec::new();
+pub fn part2(input: String) -> Option<String> {
+    fn count_answers(s: String) -> Option<usize> {
+        let people: Vec<&str> = s.split("\n").collect();
+        let mut sets: Vec<HashSet<char>> = Vec::new();
 
         for person in people {
             if person.len() == 0 {
                 continue;
             }
-            let set : HashSet<char> = HashSet::from_iter(person.chars());
+            let set: HashSet<char> = HashSet::from_iter(person.chars());
             sets.push(set);
         }
 
-        let mut int : HashSet<char> = sets.get(0)?.clone();
+        let mut int: HashSet<char> = sets.get(0)?.clone();
 
         for set in sets {
             int = int.intersection(&set).cloned().collect();
@@ -77,7 +77,7 @@ pub fn part2(input : String) -> Option<String> {
         let groups = Vec::from(chunk);
         let handle = thread::spawn(move || {
             for group in groups {
-                if let Some(num) = count_answers(group){
+                if let Some(num) = count_answers(group) {
                     if let Ok(mut sum) = sum.lock() {
                         *sum += num;
                     }
@@ -99,16 +99,28 @@ pub fn part2(input : String) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
-    const EXAMPLE_1 : &str = "abcx\nabcy\nabcz\n\n";
-    const EXAMPLE_2 : &str = "abc\n\na\nb\nc\n\nab\nac\n\na\na\na\na\n\nb\n\n";
+
+    const EXAMPLE_1: &str = "abcx\nabcy\nabcz\n\n";
+    const EXAMPLE_2: &str = "abc\n\na\nb\nc\n\nab\nac\n\na\na\na\na\n\nb\n\n";
     #[test]
     #[ignore]
     fn test_part1() -> Result<(), String> {
-        assert_eq!(&part1(String::from(EXAMPLE_1)).ok_or(String::from(""))?, "6");
-        assert_eq!(&part1(String::from(EXAMPLE_2)).ok_or(String::from(""))?, "11");
-        assert_eq!(&part2(String::from(EXAMPLE_1)).ok_or(String::from(""))?, "3");
-        assert_eq!(&part2(String::from(EXAMPLE_2)).ok_or(String::from(""))?, "6");
+        assert_eq!(
+            &part1(String::from(EXAMPLE_1)).ok_or(String::from(""))?,
+            "6"
+        );
+        assert_eq!(
+            &part1(String::from(EXAMPLE_2)).ok_or(String::from(""))?,
+            "11"
+        );
+        assert_eq!(
+            &part2(String::from(EXAMPLE_1)).ok_or(String::from(""))?,
+            "3"
+        );
+        assert_eq!(
+            &part2(String::from(EXAMPLE_2)).ok_or(String::from(""))?,
+            "6"
+        );
 
         Ok(())
     }
