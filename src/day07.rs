@@ -2,25 +2,24 @@ use std::collections::HashMap;
 #[derive(Debug)]
 struct Bag {
     color: String,
-    contents: HashMap<String, u32>,
+    contents: HashMap<String, usize>,
 }
 
 pub fn part1(input: String) -> Option<String> {
     let lines: Vec<&str> = input.lines().collect();
 
-    let mut bags: HashMap<String, HashMap<String, u32>> = HashMap::new();
+    let mut bags: HashMap<String, HashMap<String, usize>> = HashMap::new();
     for line in lines.iter() {
         if let Some(bag) = parse_line(line) {
             bags.insert(bag.color, bag.contents);
         }
     }
-    let count = count_bags(&"shiny gold", &mut bags);
+    let count = count_bag_holders(&"shiny gold", &mut bags);
     println!("{}", count);
 
     Some(count.to_string())
 }
-
-fn count_bags(color: &str, map: &mut HashMap<String, HashMap<String, u32>>) -> u32 {
+fn count_bag_holders(color: &str, map: &mut HashMap<String, HashMap<String, usize>>) -> usize {
     let mut count = 0;
     let map_clone = map.clone();
     let map_iter = map_clone.iter();
@@ -28,7 +27,32 @@ fn count_bags(color: &str, map: &mut HashMap<String, HashMap<String, u32>>) -> u
         if val.contains_key(color) {
             count += 1;
             map.remove(key);
-            count += count_bags(key, map);
+            count += count_bag_holders(key, map);
+        }
+    }
+    count
+}
+
+pub fn part2(input: String) -> Option<String> {
+    let lines: Vec<&str> = input.lines().collect();
+
+    let mut bags: HashMap<String, HashMap<String, usize>> = HashMap::new();
+    for line in lines.iter() {
+        if let Some(bag) = parse_line(line) {
+            bags.insert(bag.color, bag.contents);
+        }
+    }
+    let count = count_bag_contents(&"shiny gold", &bags);
+    println!("{}", count);
+
+    Some(count.to_string())
+}
+fn count_bag_contents(color: &str, map: &HashMap<String, HashMap<String, usize>>) -> usize {
+    let mut count = 0;
+    if let Some(contents) = map.get(color) {
+        for (k, v) in contents {
+            let content = (1 + count_bag_contents(k, map)) * *v;
+            count += content;
         }
     }
     count
@@ -54,7 +78,7 @@ fn parse_line(line: &str) -> Option<Bag> {
             .split("bag")
             .map(|x| x.trim())
             .collect::<Vec<&str>>()[0];
-        let num = content[..num].parse::<u32>().ok()?;
+        let num = content[..num].parse::<usize>().ok()?;
         bag.contents.insert(String::from(color), num);
     }
 
