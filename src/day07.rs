@@ -14,23 +14,30 @@ pub fn part1(input: String) -> Option<String> {
             bags.insert(bag.color, bag.contents);
         }
     }
-    let count = count_bag_holders(&"shiny gold", &mut bags);
+    // println!("{:#?}", bags);
+    let count = count_bag_holders("shiny gold", &bags).len();
     println!("{}", count);
 
     Some(count.to_string())
 }
-fn count_bag_holders(color: &str, map: &mut HashMap<String, HashMap<String, usize>>) -> usize {
-    let mut count = 0;
-    let map_clone = map.clone();
-    let map_iter = map_clone.iter();
-    for (key, val) in map_iter {
-        if val.contains_key(color) {
-            count += 1;
-            map.remove(key);
-            count += count_bag_holders(key, map);
+fn count_bag_holders(color: &str, map: &HashMap<String, HashMap<String, usize>>) -> Vec<String> {
+    let mut bags: Vec<String> = Vec::with_capacity(0);
+
+    for (k, v) in map {
+        if v.contains_key(color) {
+            // println!("{} can hold {}", k, color);
+            for string in count_bag_holders(k, map) {
+                if !bags.contains(&string) {
+                    bags.push(string);
+                }
+            }
+            if !bags.contains(k) {
+                bags.push(k.to_string());
+            }
         }
     }
-    count
+
+    bags
 }
 
 pub fn part2(input: String) -> Option<String> {
@@ -42,7 +49,7 @@ pub fn part2(input: String) -> Option<String> {
             bags.insert(bag.color, bag.contents);
         }
     }
-    let count = count_bag_contents(&"shiny gold", &bags);
+    let count = count_bag_contents("shiny gold", &bags);
     println!("{}", count);
 
     Some(count.to_string())
