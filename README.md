@@ -25,3 +25,5 @@ the puzzle solution for Day 5, you could run.
 ```
 cargo run -- 5 --submit
 ```
+
+A template for this project is located [here](https://github.com/SethGower/rust-aoc-template)
