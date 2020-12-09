@@ -67,11 +67,11 @@ pub fn part2(input: String) -> Option<String> {
                     //         continue;
                     //     }
                     // }
-                },
+                }
                 OpCode::Acc => acc += inst.val,
                 OpCode::Jmp => {
                     i += inst.val - 1;
-                },
+                }
             }
             if i < 0 {
                 panic!("Program counter went below zero");
