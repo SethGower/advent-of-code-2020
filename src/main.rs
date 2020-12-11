@@ -5,8 +5,7 @@ use std::fs;
 use std::io;
 use std::time::Instant;
 
-use advent_of_code::{get_day, noop, fmt_dur};
-
+use advent_of_code::{fmt_dur, get_day, noop};
 
 fn main() {
     // Get day string
