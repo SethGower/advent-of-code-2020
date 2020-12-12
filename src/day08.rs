@@ -72,7 +72,6 @@ pub fn part2(input: String) -> Option<String> {
             println!("ACC: {}", acc);
             return Some(acc.to_string());
         }
-
     }
     None
 }
