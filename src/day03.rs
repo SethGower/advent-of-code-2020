@@ -66,3 +66,18 @@ fn check_paths(matrix: &Vec<String>, right: usize, down: usize) -> usize {
 
     num_trees
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const INPUT : &str = "..##.......\n#...#...#..\n.#....#..#.\n..#.#...#.#\n.#...##..#.\n..#.##.....\n.#.#.#....#\n.#........#\n#.##...#...\n#...##....#\n.#..#...#.#";
+    #[test]
+    fn test_part1() {
+        assert_eq!(&part1(String::from(INPUT)).unwrap(), "7");
+    }
+    #[test]
+    fn test_part2() {
+        assert_eq!(&part2(String::from(INPUT)).unwrap(), "336");
+    }
+}

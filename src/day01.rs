@@ -52,3 +52,17 @@ pub fn part2(input: String) -> Option<String> {
     }
     Some(String::from("0"))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    const INPUT: &str = "1721\n979\n366\n299\n675\n1456";
+    #[test]
+    fn test_part1() {
+        assert_eq!(&part1(String::from(INPUT)).unwrap(), "514579");
+    }
+    #[test]
+    fn test_part2() {
+        assert_eq!(&part2(String::from(INPUT)).unwrap(), "241861950");
+    }
+}

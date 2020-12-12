@@ -117,3 +117,17 @@ pub fn part2(input: String) -> Option<String> {
     println!("Number of Valid Passwords: {}", count);
     Some(count.to_string())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    const INPUT: &str = "1-3 a: abcde\n1-3 b: cdefg\n2-9 c: ccccccccc";
+    #[test]
+    fn test_part1() {
+        assert_eq!(&part1(String::from(INPUT)).unwrap(), "2");
+    }
+    #[test]
+    fn test_part2() {
+        assert_eq!(&part2(String::from(INPUT)).unwrap(), "1");
+    }
+}
