@@ -1,6 +1,5 @@
 use rayon::prelude::*;
 use std::cmp::Ordering;
-use std::u8;
 #[derive(Debug, PartialOrd, PartialEq, Eq)]
 struct Bus {
     id: usize,
@@ -56,5 +55,30 @@ pub fn part2(input: String) -> Option<String> {
         curr_time += min_id as usize;
     }
     println!("{}", curr_time);
-    Some(input)
+    Some(curr_time.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const INPUT1: &str = "939\n7,13,x,x,59,x,31,19";
+    const INPUT2: &str = "\n17,x,13,19";
+    const INPUT3: &str = "\n67,7,59,61";
+    const INPUT4: &str = "\n67,x,7,59,61";
+    const INPUT5: &str = "\n67,7,x,59,61";
+    const INPUT6: &str = "\n1789,37,47,1889";
+    #[test]
+    fn test_part1() {
+        assert_eq!(part1(String::from(INPUT1)), Some(String::from("295")));
+    }
+    #[test]
+    fn test_part2() {
+        assert_eq!(&part2(String::from(INPUT1)).unwrap(), "1068781");
+        assert_eq!(&part2(String::from(INPUT2)).unwrap(), "3417");
+        assert_eq!(&part2(String::from(INPUT3)).unwrap(), "754018");
+        assert_eq!(&part2(String::from(INPUT4)).unwrap(), "779210");
+        assert_eq!(&part2(String::from(INPUT5)).unwrap(), "1261476");
+        assert_eq!(&part2(String::from(INPUT6)).unwrap(), "1202161486");
+    }
 }
