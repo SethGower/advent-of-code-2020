@@ -1,3 +1,4 @@
+use std::ops::Mul;
 #[derive(Clone, Debug, Copy, PartialEq, Eq)]
 struct Point {
     x: i32,
@@ -36,57 +37,52 @@ impl Point {
         self.y += y;
     }
 }
+impl Mul<i32> for Point {
+    type Output = Self;
 
-#[derive(Clone, Debug, Copy, PartialEq, Eq)]
-enum Direction {
-    North,
-    East,
-    South,
-    West,
+    fn mul(self, scalar: i32) -> Self::Output {
+        Self {
+            x: self.x * scalar,
+            y: self.y * scalar,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq)]
 struct Ship {
     coords: Point,
-    dir: Direction,
+    waypoint: Point,
 }
 impl Ship {
     fn rotate_right(&mut self) {
-        self.dir = match self.dir {
-            Direction::North => Direction::East,
-            Direction::East => Direction::South,
-            Direction::South => Direction::West,
-            Direction::West => Direction::North,
-        }
+        let temp = self.waypoint.x;
+        self.waypoint.x = self.waypoint.y;
+        self.waypoint.y = temp * -1;
     }
     fn rotate_left(&mut self) {
-        self.dir = match self.dir {
-            Direction::North => Direction::West,
-            Direction::East => Direction::North,
-            Direction::South => Direction::East,
-            Direction::West => Direction::South,
-        }
+        let temp = self.waypoint.x;
+        self.waypoint.x = -1 * self.waypoint.y;
+        self.waypoint.y = temp;
     }
-    fn new(dir: Direction, position: Point) -> Ship {
+    fn new(position: Point, waypoint: Point) -> Ship {
         Ship {
             coords: position,
-            dir: dir,
+            waypoint: waypoint,
         }
     }
-    fn travel(&mut self, motion: Motion) -> Point {
-        let point = self.coords.clone();
+    fn travel(&mut self, motion: Motion) {
         match motion {
             Motion::N(dist) => {
-                self.coords.translate(0, dist);
+                self.waypoint.translate(0, dist);
             }
             Motion::S(dist) => {
-                self.coords.translate(0, -1 * dist);
+                self.waypoint.translate(0, -1 * dist);
             }
             Motion::E(dist) => {
-                self.coords.translate(dist, 0);
+                self.waypoint.translate(dist, 0);
             }
             Motion::W(dist) => {
-                self.coords.translate(-1 * dist, 0);
+                self.waypoint.translate(-1 * dist, 0);
             }
             Motion::L(dist) => {
                 for _ in 0..dist / 90 {
@@ -98,22 +94,11 @@ impl Ship {
                     self.rotate_right();
                 }
             }
-            Motion::F(dist) => match self.dir {
-                Direction::North => {
-                    self.coords.translate(0, dist);
-                }
-                Direction::South => {
-                    self.coords.translate(0, -1 * dist);
-                }
-                Direction::East => {
-                    self.coords.translate(dist, 0);
-                }
-                Direction::West => {
-                    self.coords.translate(-1 * dist, 0);
-                }
-            },
+            Motion::F(dist) => {
+                let vec = self.waypoint * dist;
+                self.coords.translate(vec.x, vec.y);
+            }
         }
-        point
     }
     fn manhattan_distance(&self, origin: Point) -> (i32, i32) {
         (
@@ -124,11 +109,13 @@ impl Ship {
 }
 pub fn part1(input: String) -> Option<String> {
     let motions: Vec<Motion> = input.lines().map(|x| Motion::parse(x).unwrap()).collect();
-    let mut ship = Ship::new(Direction::East, Point { x: 0, y: 0 });
+    let mut ship = Ship::new(Point { x: 0, y: 0 }, Point { x: 10, y: 1 });
     for motion in motions.iter() {
         ship.travel(*motion);
     }
     let (x, y) = ship.manhattan_distance(Point { x: 0, y: 0 });
+    println!("{:#?}", ship);
     println!("{}", x + y);
+
     Some((x + y).to_string())
 }
