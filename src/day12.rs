@@ -35,10 +35,6 @@ impl Point {
         self.x += x;
         self.y += y;
     }
-    fn change(&mut self, x: i32, y: i32) {
-        self.x = x;
-        self.y = y;
-    }
 }
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq)]
@@ -55,7 +51,7 @@ struct Ship {
     dir: Direction,
 }
 impl Ship {
-    fn rotateRight(&mut self) {
+    fn rotate_right(&mut self) {
         self.dir = match self.dir {
             Direction::North => Direction::East,
             Direction::East => Direction::South,
@@ -63,7 +59,7 @@ impl Ship {
             Direction::West => Direction::North,
         }
     }
-    fn rotateLeft(&mut self) {
+    fn rotate_left(&mut self) {
         self.dir = match self.dir {
             Direction::North => Direction::West,
             Direction::East => Direction::North,
@@ -93,17 +89,46 @@ impl Ship {
                 self.coords.translate(-1 * dist, 0);
             }
             Motion::L(dist) => {
-                self.rotateLeft();
+                for _ in 0..dist / 90 {
+                    self.rotate_left();
+                }
             }
             Motion::R(dist) => {
-                self.rotateRight();
+                for _ in 0..dist / 90 {
+                    self.rotate_right();
+                }
             }
-            Motion::F(dist) => {}
+            Motion::F(dist) => match self.dir {
+                Direction::North => {
+                    self.coords.translate(0, dist);
+                }
+                Direction::South => {
+                    self.coords.translate(0, -1 * dist);
+                }
+                Direction::East => {
+                    self.coords.translate(dist, 0);
+                }
+                Direction::West => {
+                    self.coords.translate(-1 * dist, 0);
+                }
+            },
         }
         point
+    }
+    fn manhattan_distance(&self, origin: Point) -> (i32, i32) {
+        (
+            (self.coords.x - origin.x).abs(),
+            (self.coords.y - origin.y).abs(),
+        )
     }
 }
 pub fn part1(input: String) -> Option<String> {
     let motions: Vec<Motion> = input.lines().map(|x| Motion::parse(x).unwrap()).collect();
-    Some(input)
+    let mut ship = Ship::new(Direction::East, Point { x: 0, y: 0 });
+    for motion in motions.iter() {
+        ship.travel(*motion);
+    }
+    let (x, y) = ship.manhattan_distance(Point { x: 0, y: 0 });
+    println!("{}", x + y);
+    Some((x + y).to_string())
 }
