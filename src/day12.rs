@@ -55,14 +55,12 @@ struct Ship {
 }
 impl Ship {
     fn rotate_right(&mut self) {
-        let temp = self.waypoint.x;
-        self.waypoint.x = self.waypoint.y;
-        self.waypoint.y = temp * -1;
+        std::mem::swap(&mut self.waypoint.x, &mut self.waypoint.y);
+        self.waypoint.y *= -1;
     }
     fn rotate_left(&mut self) {
-        let temp = self.waypoint.x;
-        self.waypoint.x = -1 * self.waypoint.y;
-        self.waypoint.y = temp;
+        std::mem::swap(&mut self.waypoint.x, &mut self.waypoint.y);
+        self.waypoint.x *= -1;
     }
     fn new(position: Point, waypoint: Point) -> Ship {
         Ship {
