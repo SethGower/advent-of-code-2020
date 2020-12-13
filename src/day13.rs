@@ -46,14 +46,13 @@ pub fn part2(input: String) -> Option<String> {
             }
         })
         .collect();
-    let mut curr_time: usize = 0;
-    let min_id = offsets.iter().min()?.id;
-    loop {
-        if offsets.par_iter().all(|b| (b.time + curr_time) % b.id == 0) {
-            break;
-        }
-        curr_time += min_id as usize;
-    }
+    let min_id: usize = offsets.iter().min()?.id;
+    let curr_time: usize = (100000000000000..std::usize::MAX / 2 as usize)
+        .into_par_iter()
+        .find_first(|x| {
+            let answer = min_id * x;
+            offsets.iter().all(|b| (b.time + answer) & b.id == 0)
+        })?;
     println!("{}", curr_time);
     Some(curr_time.to_string())
 }
