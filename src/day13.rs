@@ -1,4 +1,6 @@
+use rayon::prelude::*;
 use std::cmp::Ordering;
+use std::u8;
 #[derive(Debug, PartialOrd, PartialEq, Eq)]
 struct Bus {
     id: usize,
@@ -45,19 +47,13 @@ pub fn part2(input: String) -> Option<String> {
             }
         })
         .collect();
-    let mut curr_time: u128 = 0;
+    let mut curr_time: usize = 0;
     let min_id = offsets.iter().min()?.id;
-    // println!("{:?}", offsets);
-    // println!("{}", min_id);
     loop {
-        let sum: u128 = offsets
-            .iter()
-            .map(|b| (b.time as u128 + curr_time) % b.id as u128)
-            .sum();
-        if sum == 0 {
+        if offsets.par_iter().all(|b| (b.time + curr_time) % b.id == 0) {
             break;
         }
-        curr_time += min_id as u128;
+        curr_time += min_id as usize;
     }
     println!("{}", curr_time);
     Some(input)
