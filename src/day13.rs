@@ -48,11 +48,14 @@ pub fn part2(input: String) -> Option<String> {
     let min_bus = offsets.iter().max()?;
     let start: usize = min_bus.id - min_bus.time;
     let step: usize = min_bus.id;
-    println!("Min Bus: {:?}", min_bus);
-    let curr_time: usize = (600_000..=usize::MAX).into_par_iter().find_first(|iter| {
-        let answer = iter * step + start;
-        offsets.iter().all(|b| (b.time + answer) % b.id == 0)
-    })? * step
+    // println!("Min Bus: {:?}", min_bus);
+    let curr_time: usize = (600_000..=100_000_000_000_000 as usize)
+        .into_par_iter()
+        .find_first(|iter| {
+            let answer = iter * step + start;
+            offsets.iter().all(|b| (b.time + answer) % b.id == 0)
+        })?
+        * step
         + start;
     println!("{}", curr_time);
     Some(curr_time.to_string())
