@@ -46,11 +46,13 @@ pub fn part2(input: String) -> Option<String> {
             }
         })
         .collect();
-    let min_id: usize = offsets.iter().min()?.id;
-    let curr_time: usize = (0..700_000_000_000_usize).into_par_iter().find_first(|x| {
-        let answer = min_id * x;
-        offsets.iter().all(|b| (b.time + answer) & b.id == 0)
-    })?;
+    let max_bus = offsets.iter().max()?;
+    let curr_time: usize = (644_101_000_000..=usize::MAX)
+        .into_par_iter()
+        .find_first(|x| {
+            let answer = max_bus.id * x + (max_bus.id - max_bus.time);
+            offsets.iter().all(|b| (b.time + answer) & b.id == 0)
+        })?;
     println!("{}", curr_time);
     Some(curr_time.to_string())
 }
