@@ -34,7 +34,7 @@ impl Bus {
         let result = mod_prods % prod;
         Some(result)
     }
-
+    #[allow(dead_code)]
     fn find_contiguous_brut(schedule: &[Bus]) -> Option<isize> {
         let min_bus = schedule.iter().max()?;
         let start: isize = min_bus.id - min_bus.time;
@@ -48,6 +48,35 @@ impl Bus {
             * step
             + start;
         Some(curr_time)
+    }
+    fn print_table(schedule: &[Bus], time: usize, entries: usize) -> Option<String> {
+        let time_width = (time + entries).to_string().len();
+        let bus_width = schedule.iter().max()?.id.to_string().len() + 7;
+
+        let mut string = String::new();
+        let mut header = format!("{:<width$}", "time", width = time_width + 4);
+        for bus in schedule.iter() {
+            let col = format!("bus {}", bus.id); // adds the column header for each bus
+            header += &format!("{:^width$}", col, width = bus_width); //formats the width of the column
+        }
+        string += &header;
+        // Iterates through each row and adds the rows to the string
+        for num in time..time + entries {
+            // adds the row with the time stamp in the first column
+            let mut row = format!("\n{:<width$}", num, width = time_width + 4);
+            // iterates through each bus in the schedule.
+            for bus in schedule.iter() {
+                if num % bus.id as usize == 0 {
+                    // if the bus departs at that time stamp, write a 'D' in the column
+                    row += &format!("{:^width$}", "D", width = bus_width);
+                } else {
+                    // if the bus doesn't depart at that time stamp, write a '-' in the column
+                    row += &format!("{:^width$}", "-", width = bus_width);
+                }
+            }
+            string += &row;
+        }
+        Some(string)
     }
 }
 
@@ -89,7 +118,15 @@ pub fn part2(input: String) -> Option<String> {
         })
         .collect();
     let result = Bus::find_contiguous_crt(&offsets)?;
-    println!("{}", result);
+    println!("First Timestamp with contiguous departures: {}", result);
+    println!(
+        "Departures:\n{}",
+        Bus::print_table(
+            &offsets,
+            result as usize - 2,
+            offsets.iter().map(|x| x.time).max()? as usize + offsets.len()
+        )?
+    );
 
     Some(result.to_string())
 }
