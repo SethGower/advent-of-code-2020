@@ -33,9 +33,8 @@ pub fn part1(input: String) -> Option<String> {
 }
 pub fn part2(input: String) -> Option<String> {
     let mut lines = input.lines();
-    let _ = lines.next()?;
     let offsets: Vec<Bus> = lines
-        .next()?
+        .nth(1)?
         .split(',')
         .enumerate()
         .filter_map(|x| {
@@ -46,13 +45,14 @@ pub fn part2(input: String) -> Option<String> {
             }
         })
         .collect();
-    let max_bus = offsets.iter().max()?;
-    let curr_time: usize = (644_101_000_000..=usize::MAX)
-        .into_par_iter()
-        .find_first(|x| {
-            let answer = max_bus.id * x + (max_bus.id - max_bus.time);
-            offsets.iter().all(|b| (b.time + answer) & b.id == 0)
-        })?;
+    let min_bus = offsets.iter().max()?;
+    let start: usize = min_bus.id - min_bus.time;
+    let step: usize = min_bus.id;
+    let curr_time: usize = (0..=usize::MAX).into_par_iter().find_first(|iter| {
+        let answer = iter * step + start;
+        offsets.iter().all(|b| (b.time + answer) % b.id == 0)
+    })? * step
+        + start;
     println!("{}", curr_time);
     Some(curr_time.to_string())
 }
@@ -71,7 +71,6 @@ mod tests {
     fn test_part1() {
         assert_eq!(part1(String::from(INPUT1)), Some(String::from("295")));
     }
-    #[ignore]
     #[test]
     fn test_part2() {
         assert_eq!(&part2(String::from(INPUT1)).unwrap(), "1068781");
