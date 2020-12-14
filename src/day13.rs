@@ -49,7 +49,7 @@ pub fn part2(input: String) -> Option<String> {
     let start: usize = min_bus.id - min_bus.time;
     let step: usize = min_bus.id;
     // println!("Min Bus: {:?}", min_bus);
-    let curr_time: usize = (600_000..=100_000_000_000_000 as usize)
+    let curr_time: usize = (0..=100_000_000_000_000 as usize)
         .into_par_iter()
         .find_first(|iter| {
             let answer = iter * step + start;
