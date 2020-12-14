@@ -12,19 +12,22 @@ impl Ord for Bus {
     }
 }
 impl Bus {
+    // Implements the Chinese Remainder Theorem to compute the first timestamp with
+    // contiguous departures
     fn find_contiguous_crt(schedule: &[Bus]) -> Option<isize> {
         #[inline]
+        // find value with inverse modulus of a with mod value of m
         fn inverse_mod(a: isize, m: isize) -> Option<isize> {
             (0..m).into_iter().find(|x| a * x % m == 1)
         }
-        let prod: isize = schedule.iter().map(|x| x.id).product();
-        let factors: Vec<isize> = schedule.iter().map(|x| prod / x.id).collect();
-        let y: Vec<isize> = schedule
+        let prod: isize = schedule.iter().map(|x| x.id).product(); // product of all of the id's
+        let factors: Vec<isize> = schedule.iter().map(|x| prod / x.id).collect(); // the factors for the product for each of the id's
+        let y: Vec<isize> = schedule // shows all of the inverse modulus values for the factors
             .iter()
             .zip(factors.clone())
             .map(|(b, f)| inverse_mod(f, b.id).unwrap())
             .collect();
-        let mod_prods: isize = izip!(schedule, &factors, &y)
+        let mod_prods: isize = izip!(schedule, &factors, &y) // sum of the inverse mod values * factors and id-offset
             .map(|(b, f, i)| {
                 let x = (b.id - b.time) % b.id;
                 x * f * i
@@ -35,6 +38,7 @@ impl Bus {
         Some(result)
     }
     #[allow(dead_code)]
+    // this doesn't work. I ran it on the server for 204 hours (of CPU time, overnight on 16 threads)
     fn find_contiguous_brut(schedule: &[Bus]) -> Option<isize> {
         let min_bus = schedule.iter().max()?;
         let start: isize = min_bus.id - min_bus.time;
