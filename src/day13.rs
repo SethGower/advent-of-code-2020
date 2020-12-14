@@ -1,4 +1,5 @@
 use itertools::izip;
+use rayon::prelude::*;
 use std::cmp::Ordering;
 #[derive(Debug, PartialOrd, PartialEq, Eq)]
 struct Bus {
@@ -8,6 +9,45 @@ struct Bus {
 impl Ord for Bus {
     fn cmp(&self, other: &Self) -> Ordering {
         self.time.cmp(&other.time)
+    }
+}
+impl Bus {
+    fn find_contiguous_crt(schedule: &[Bus]) -> Option<isize> {
+        #[inline]
+        fn inverse_mod(a: isize, m: isize) -> Option<isize> {
+            (0..m).into_iter().find(|x| a * x % m == 1)
+        }
+        let prod: isize = schedule.iter().map(|x| x.id).product();
+        let factors: Vec<isize> = schedule.iter().map(|x| prod / x.id).collect();
+        let y: Vec<isize> = schedule
+            .iter()
+            .zip(factors.clone())
+            .map(|(b, f)| inverse_mod(f, b.id).unwrap())
+            .collect();
+        let mod_prods: isize = izip!(schedule, &factors, &y)
+            .map(|(b, f, i)| {
+                let x = (b.id - b.time) % b.id;
+                x * f * i
+            })
+            .sum();
+
+        let result = mod_prods % prod;
+        Some(result)
+    }
+
+    fn find_contiguous_brut(schedule: &[Bus]) -> Option<isize> {
+        let min_bus = schedule.iter().max()?;
+        let start: isize = min_bus.id - min_bus.time;
+        let step: isize = min_bus.id;
+        let curr_time: isize = (0..=100_000_000_000_000 as isize)
+            .into_par_iter()
+            .find_first(|iter| {
+                let answer = iter * step + start;
+                schedule.iter().all(|b| (b.time + answer) % b.id == 0)
+            })?
+            * step
+            + start;
+        Some(curr_time)
     }
 }
 
@@ -48,26 +88,7 @@ pub fn part2(input: String) -> Option<String> {
             }
         })
         .collect();
-
-    #[inline]
-    fn inverse_mod(a: isize, m: isize) -> Option<isize> {
-        (0..m).into_iter().find(|x| a * x % m == 1)
-    }
-    let prod: isize = offsets.iter().map(|x| x.id).product();
-    let factors: Vec<isize> = offsets.iter().map(|x| prod / x.id).collect();
-    let y: Vec<isize> = offsets
-        .iter()
-        .zip(factors.clone())
-        .map(|(b, f)| inverse_mod(f, b.id).unwrap())
-        .collect();
-    let mod_prods: isize = izip!(&offsets, &factors, &y)
-        .map(|(b, f, i)| {
-            let x = (b.id - b.time) % b.id;
-            x * f * i
-        })
-        .sum();
-
-    let result = mod_prods % prod;
+    let result = Bus::find_contiguous_crt(&offsets)?;
     println!("{}", result);
 
     Some(result.to_string())
