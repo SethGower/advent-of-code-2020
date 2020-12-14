@@ -146,16 +146,21 @@ mod tests {
     const INPUT5: &str = "\n67,7,x,59,61";
     const INPUT6: &str = "\n1789,37,47,1889";
     #[test]
-    fn test_part1() {
-        assert_eq!(part1(String::from(INPUT1)), Some(String::from("295")));
+    fn test_part1() -> Result<(), String> {
+        assert_eq!(
+            &part1(String::from(INPUT1)).ok_or("Returned nothing")?,
+            "295"
+        );
+        Ok(())
     }
     #[test]
-    fn test_part2() {
-        assert_eq!(&part2(String::from(INPUT1)).unwrap(), "1068781");
-        assert_eq!(&part2(String::from(INPUT2)).unwrap(), "3417");
-        assert_eq!(&part2(String::from(INPUT3)).unwrap(), "754018");
-        assert_eq!(&part2(String::from(INPUT4)).unwrap(), "779210");
-        assert_eq!(&part2(String::from(INPUT5)).unwrap(), "1261476");
-        assert_eq!(&part2(String::from(INPUT6)).unwrap(), "1202161486");
+    fn test_part2() -> Result<(), String> {
+        assert_eq!(&part2(String::from(INPUT1)).ok_or("None")?, "1068781");
+        assert_eq!(&part2(String::from(INPUT2)).ok_or("None")?, "3417");
+        assert_eq!(&part2(String::from(INPUT3)).ok_or("None")?, "754018");
+        assert_eq!(&part2(String::from(INPUT4)).ok_or("None")?, "779210");
+        assert_eq!(&part2(String::from(INPUT5)).ok_or("None")?, "1261476");
+        assert_eq!(&part2(String::from(INPUT6)).ok_or("None")?, "1202161486");
+        Ok(())
     }
 }
