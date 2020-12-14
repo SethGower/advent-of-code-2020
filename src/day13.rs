@@ -1,9 +1,9 @@
-use rayon::prelude::*;
+use itertools::izip;
 use std::cmp::Ordering;
 #[derive(Debug, PartialOrd, PartialEq, Eq)]
 struct Bus {
-    id: usize,
-    time: usize,
+    id: isize,
+    time: isize,
 }
 impl Ord for Bus {
     fn cmp(&self, other: &Self) -> Ordering {
@@ -13,11 +13,11 @@ impl Ord for Bus {
 
 pub fn part1(input: String) -> Option<String> {
     let mut lines = input.lines();
-    let timestamp: usize = lines.next()?.parse().ok()?;
+    let timestamp: isize = lines.next()?.parse().ok()?;
     let earliest_departure: Bus = lines
         .next()?
         .split(',')
-        .filter_map(|x| x.parse::<usize>().ok())
+        .filter_map(|x| x.parse::<isize>().ok())
         .map(|id| {
             let timestamp = ((timestamp / id) + 1) * id;
             Bus {
@@ -38,27 +38,39 @@ pub fn part2(input: String) -> Option<String> {
         .split(',')
         .enumerate()
         .filter_map(|x| {
-            if let Ok(num) = x.1.parse::<usize>() {
-                Some(Bus { id: num, time: x.0 })
+            if let Ok(num) = x.1.parse::<isize>() {
+                Some(Bus {
+                    id: num,
+                    time: x.0 as isize,
+                })
             } else {
                 None
             }
         })
         .collect();
-    let min_bus = offsets.iter().max()?;
-    let start: usize = min_bus.id - min_bus.time;
-    let step: usize = min_bus.id;
-    // println!("Min Bus: {:?}", min_bus);
-    let curr_time: usize = (0..=100_000_000_000_000 as usize)
-        .into_par_iter()
-        .find_first(|iter| {
-            let answer = iter * step + start;
-            offsets.iter().all(|b| (b.time + answer) % b.id == 0)
-        })?
-        * step
-        + start;
-    println!("{}", curr_time);
-    Some(curr_time.to_string())
+
+    #[inline]
+    fn inverse_mod(a: isize, m: isize) -> Option<isize> {
+        (0..m).into_iter().find(|x| a * x % m == 1)
+    }
+    let prod: isize = offsets.iter().map(|x| x.id).product();
+    let factors: Vec<isize> = offsets.iter().map(|x| prod / x.id).collect();
+    let y: Vec<isize> = offsets
+        .iter()
+        .zip(factors.clone())
+        .map(|(b, f)| inverse_mod(f, b.id).unwrap())
+        .collect();
+    let mod_prods: isize = izip!(&offsets, &factors, &y)
+        .map(|(b, f, i)| {
+            let x = (b.id - b.time) % b.id;
+            x * f * i
+        })
+        .sum();
+
+    let result = mod_prods % prod;
+    println!("{}", result);
+
+    Some(result.to_string())
 }
 
 #[cfg(test)]
